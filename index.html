@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>洗选安全考核刷题</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root{
+    --primary:#1a4d8f; --primary-dark:#123a6b; --accent:#e8852d;
+    --bg:#f2f4f8; --card:#ffffff; --text:#222; --muted:#8a94a6;
+    --ok:#22a06b; --err:#d64545; --border:#e3e8ef;
+  }
+  html,body{ height:100%; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--text); font-size:15px; line-height:1.6;
+  }
+  .app{ max-width:480px; margin:0 auto; min-height:100vh; background:var(--bg); position:relative; }
+  header{
+    position:sticky; top:0; z-index:50; background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    color:#fff; padding:14px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  header h1{ font-size:17px; font-weight:600; flex:1; }
+  .back{ font-size:22px; cursor:pointer; width:28px; text-align:center; }
+  .back.hide{ visibility:hidden; }
+  .view{ padding:14px 16px 90px; display:none; }
+  .view.active{ display:block; }
+
+  .hero{ background:var(--card); border-radius:14px; padding:20px; text-align:center; margin-bottom:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .hero .badge{ display:inline-block; background:var(--accent); color:#fff; font-size:12px; padding:3px 10px; border-radius:20px; margin-bottom:8px; }
+  .hero h2{ font-size:20px; color:var(--primary-dark); margin-bottom:4px; }
+  .hero p{ color:var(--muted); font-size:13px; }
+  .stat-row{ display:flex; gap:8px; margin-top:14px; }
+  .stat{ flex:1; background:#f7f9fc; border-radius:10px; padding:10px 4px; }
+  .stat b{ display:block; font-size:22px; color:var(--primary); }
+  .stat span{ font-size:12px; color:var(--muted); }
+  .menu{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .menu-item{ background:var(--card); border-radius:14px; padding:18px 14px; box-shadow:0 1px 4px rgba(0,0,0,.06); cursor:pointer; }
+  .menu-item .ic{ font-size:28px; }
+  .menu-item b{ display:block; margin-top:8px; font-size:15px; color:var(--text); }
+  .menu-item span{ font-size:12px; color:var(--muted); }
+  .menu-item.wide{ grid-column:span 2; }
+  .about-link{ text-align:center; margin-top:16px; }
+  .about-link span{ color:var(--primary); font-size:13px; cursor:pointer; text-decoration:underline; }
+
+  .btn{ display:block; width:100%; padding:13px; border:none; border-radius:12px; font-size:16px; cursor:pointer; background:var(--primary); color:#fff; font-weight:600; margin-top:12px; }
+  .btn.secondary{ background:#eef2f8; color:var(--primary); }
+  .btn.accent{ background:var(--accent); }
+  .btn:disabled{ opacity:.5; }
+
+  .filters{ display:flex; gap:8px; margin-bottom:12px; }
+  .filters .chip{ flex:1; text-align:center; padding:8px 0; background:#e9edf3; color:#5a6478; border-radius:10px; font-size:13px; cursor:pointer; }
+  .filters .chip.on{ background:var(--primary); color:#fff; }
+
+  .timer{ text-align:center; font-size:26px; font-weight:700; color:var(--primary-dark); margin-bottom:10px; }
+  .timer.warn{ color:var(--err); }
+
+  .q-card{ background:var(--card); border-radius:14px; padding:18px 16px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .q-tag{ display:inline-block; font-size:12px; padding:2px 8px; border-radius:6px; margin-bottom:10px; }
+  .q-tag.danxuan{ background:#e8f1fe; color:#1a5bb8; }
+  .q-tag.duoxuan{ background:#fdeee0; color:#c06a1d; }
+  .q-tag.panduan{ background:#e7f7ef; color:#178a5c; }
+  .q-num{ font-size:13px; color:var(--muted); margin-left:6px; }
+  .q-stem{ font-size:16px; margin-top:10px; line-height:1.7; word-break:break-word; }
+  .options{ margin-top:14px; }
+  .opt{ border:1.5px solid var(--border); border-radius:10px; padding:12px; margin-bottom:10px; cursor:pointer; display:flex; align-items:flex-start; gap:10px; transition:all .15s; background:#fff; }
+  .opt .key{ width:24px; height:24px; border-radius:50%; background:#eef2f8; color:#5a6478; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .opt .txt{ flex:1; word-break:break-word; }
+  .opt.selected{ border-color:var(--primary); background:#f0f6ff; }
+  .opt.selected .key{ background:var(--primary); color:#fff; }
+  .opt.correct{ border-color:var(--ok); background:#eefaf4; }
+  .opt.correct .key{ background:var(--ok); color:#fff; }
+  .opt.wrong{ border-color:var(--err); background:#fdf1f1; }
+  .opt.wrong .key{ background:var(--err); color:#fff; }
+  .multi-hint{ font-size:12px; color:var(--muted); margin-top:6px; }
+  .result-bar{ margin-top:14px; padding:12px; border-radius:10px; text-align:center; font-weight:600; font-size:16px; }
+  .result-bar.ok{ background:#eefaf4; color:var(--ok); }
+  .result-bar.no{ background:#fdf1f1; color:var(--err); }
+  .note-box{margin-top:10px;padding:10px 12px;background:#fff8e6;border:1px solid #f0d48a;border-radius:8px;font-size:13px;color:#7a5b00;line-height:1.7;}
+  .ans-box{ margin-top:12px; background:#f7f9fc; border-radius:10px; padding:12px; font-size:14px; color:#3a4456; }
+  .ans-box b{ color:var(--primary); }
+  .nav-row{ display:flex; gap:10px; margin-top:16px; }
+  .nav-row .btn{ flex:1; margin-top:0; }
+  .exam-quick{ text-align:right; font-size:12px; color:var(--muted); }
+
+  .prog{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .prog .bar{ flex:1; height:6px; background:#e3e8ef; border-radius:6px; overflow:hidden; }
+  .prog .bar i{ display:block; height:100%; background:var(--accent); border-radius:6px; transition:width .3s; }
+  .prog span{ font-size:12px; color:var(--muted); }
+
+  .card-list .litem{ background:var(--card); border-radius:12px; padding:14px; margin-bottom:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .card-list .litem b{ font-size:14px; }
+  .card-list .litem p{ font-size:13px; color:var(--muted); margin-top:4px; }
+  .litem.row{ display:flex; align-items:center; gap:12px; }
+  .litem .grow{ flex:1; }
+  .litem .num{ font-size:20px; color:var(--accent); font-weight:700; }
+
+  .stat-big{ text-align:center; padding:8px 0 16px; }
+  .stat-big b{ font-size:42px; color:var(--primary); }
+  .stat-big span{ color:var(--muted); font-size:13px; }
+  .kv{ display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:14px; }
+  .kv:last-child{ border-bottom:none; }
+
+  .about-card{ background:var(--card); border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .about-card h3{ font-size:15px; color:var(--primary-dark); margin-bottom:8px; }
+  .about-card p,.about-card li{ font-size:13px; color:#3a4456; }
+  .about-card ul{ padding-left:18px; }
+  .notice{ background:#fff7ed; border:1px solid #fde6c8; border-radius:10px; padding:10px 12px; font-size:12px; color:#8a5a1d; margin-top:10px; }
+
+  .empty{ text-align:center; color:var(--muted); padding:40px 0; }
+  .empty .ic{ font-size:48px; }
+  footer{ text-align:center; font-size:11px; color:#aeb6c4; padding:16px 0 8px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="back hide" id="backBtn">‹</div>
+    <h1 id="headerTitle">洗选安全考核刷题</h1>
+  </header>
+
+  <div class="view active" id="home">
+    <div class="hero">
+      <span class="badge">山西省应急管理厅考核</span>
+      <h2>选煤厂主要负责人 · 安全管理人员</h2>
+      <p>安全生产知识和管理能力考试 · 模拟刷题</p>
+      <div class="stat-row" id="homeStats"></div>
+    </div>
+    <div class="menu">
+      <div class="menu-item" onclick="startPractice('random')"><div class="ic">🎲</div><b>随机刷题</b><span>打乱顺序练习</span></div>
+      <div class="menu-item" onclick="startPractice('order')"><div class="ic">📋</div><b>顺序刷题</b><span>按题库顺序练习</span></div>
+      <div class="menu-item" onclick="startExam()"><div class="ic">⏱️</div><b>模拟考试</b><span>单选50+多选10+判断30 · 满分100分</span></div>
+      <div class="menu-item" onclick="goWrong()"><div class="ic">📕</div><b>错题本</b><span id="wrongCount">0 题待练</span></div>
+      <div class="menu-item wide" onclick="goStats()"><div class="ic">📊</div><b>学习统计</b><span>练习量与正确率</span></div>
+    </div>
+    <div class="about-link"><span onclick="goAbout()">考核说明 · 依据晋应急函〔2021〕186号</span></div>
+    <footer>洗选交流 · 选煤/洗选专业学习工具</footer>
+  </div>
+
+  <div class="view" id="practice">
+    <div class="filters" id="typeFilters">
+      <div class="chip on" data-t="all" onclick="setType('all')">全部</div>
+      <div class="chip" data-t="单选" onclick="setType('单选')">单选</div>
+      <div class="chip" data-t="多选" onclick="setType('多选')">多选</div>
+      <div class="chip" data-t="判断" onclick="setType('判断')">判断</div>
+    </div>
+    <div id="examTimer" class="timer" style="display:none"></div>
+    <div class="prog"><div class="bar"><i id="progBar" style="width:0%"></i></div><span id="progText">0/0</span></div>
+    <div class="q-card" id="qCard"></div>
+  </div>
+
+  <div class="view" id="exam">
+    <div class="q-card" style="text-align:center">
+      <div class="timer" id="timer">60:00</div>
+      <div class="exam-info" style="color:var(--muted);font-size:14px;margin:6px 0" id="examInfo"></div>
+      <div class="btn secondary" onclick="beginExam()">开始考试</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:10px" id="examTip"></p>
+    </div>
+  </div>
+
+  <div class="view" id="wrong"></div>
+  <div class="view" id="stats"></div>
+  <div class="view" id="about"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+const BANK = window.QUESTION_BANK.questions;
+const TYPE_CN = { "单选":"danxuan","多选":"duoxuan","判断":"panduan" };
+
+const store = {
+  get(k, d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+let wrongSet = store.get('lx_wrong', {});
+let stats = store.get('lx_stats', { attempts:0, correct:0, total:0, done:{} });
+let practice = null;
+let exam = null;
+let currentType = 'all';
+
+function show(viewId, title, back=true){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+  document.getElementById('headerTitle').textContent = title;
+  document.getElementById('backBtn').classList.toggle('hide', !back);
+  window.scrollTo(0,0);
+}
+function goHome(){ renderHome(); show('home','洗选安全考核刷题',false); }
+document.getElementById('backBtn').onclick = goHome;
+
+function renderHome(){
+  const types = { '单选':0,'多选':0,'判断':0 };
+  BANK.forEach(q=>types[q.type]++);
+  document.getElementById('homeStats').innerHTML =
+    `<div class="stat"><b>${BANK.length}</b><span>总题数</span></div>`+
+    `<div class="stat"><b>${types['单选']}</b><span>单选</span></div>`+
+    `<div class="stat"><b>${types['多选']}</b><span>多选</span></div>`+
+    `<div class="stat"><b>${types['判断']}</b><span>判断</span></div>`;
+  document.getElementById('wrongCount').textContent = Object.keys(wrongSet).length + ' 题待练';
+}
+
+function buildList(filter){ return BANK.filter(q=> filter==='all' || q.type===filter).map(q=>q.id); }
+function byId(id){ return BANK.find(q=>q.id===id); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function startPractice(mode){
+  practice = { list: buildList(currentType), idx:0, mode, answers:{}, confirmed:{}, done:false };
+  if(!practice.list.length){ alert('该题型暂无题目'); return; }
+  if(mode==='random') practice.list = shuffle(practice.list);
+  document.getElementById('typeFilters').style.display='';
+  document.getElementById('examTimer').style.display='none';
+  show('practice', mode==='random'?'随机刷题':'顺序刷题');
+  renderQuestion();
+}
+function setType(t){
+  currentType = t;
+  document.querySelectorAll('#typeFilters .chip').forEach(c=>c.classList.toggle('on', c.dataset.t===t));
+}
+
+function renderQuestion(){
+  if(!practice) return;
+  const q = byId(practice.list[practice.idx]);
+  const p = practice.idx+1, total = practice.list.length;
+  document.getElementById('progBar').style.width = (p/total*100)+'%';
+  document.getElementById('progText').textContent = p+'/'+total;
+  const isExam = practice.mode==='exam';
+  const locked = !!practice.confirmed[q.id];
+  const sel = (practice.answers[q.id]||[]).slice();
+  let optsHtml = q.options.map(o=>{
+    let cls='';
+    if(locked){
+      if(q.answer.includes(o.label)) cls=' correct';
+      else if(sel.includes(o.label)) cls=' wrong';
+    } else if(sel.includes(o.label)) cls=' selected';
+    const clickable = !locked;
+    return `<div class="opt${cls}" data-label="${o.label}" ${clickable?`onclick="pick(${q.id},'${o.label}',this)"`:''}><span class="key">${o.label}</span><span class="txt">${esc(o.text)}</span></div>`;
+  }).join('');
+  let resultHtml='';
+  if(locked){
+    const right = isRight(q.id);
+    resultHtml = `<div class="result-bar ${right?'ok':'no'}">${right?'✓ 回答正确':'✗ 回答错误'}</div>`;
+    resultHtml += `<div class="ans-box"><b>正确答案：</b>${q.answer.join('、')}<br><b>你的答案：</b>${sel.join('、')||'未作答'}</div>`;
+    if(q.note){ resultHtml += `<div class="note-box">📌 ${q.note}</div>`; }
+  }
+  let btns='';
+  if(isExam){
+    btns = `<div class="nav-row"><button class="btn ${practice.idx===0?'secondary':''}" ${practice.idx===0?'disabled':''} onclick="gotoQ(-1)">上一题</button><button class="btn accent" ${practice.idx===total-1?'disabled':''} onclick="gotoQ(1)">下一题</button></div>`;
+    if(practice.idx===total-1) btns += `<button class="btn" onclick="submitExam()">交卷</button>`;
+  } else if(locked){
+    btns = `<div class="nav-row"><button class="btn ${practice.idx===0?'secondary':''}" ${practice.idx===0?'disabled':''} onclick="gotoQ(-1)">上一题</button><button class="btn accent" ${practice.idx===total-1?'disabled':''} onclick="gotoQ(1)">下一题</button></div>`;
+  } else {
+    btns = `<button class="btn" onclick="confirmAns()">${q.type==='多选'?'确认答案':'提交答案'}</button>`;
+  }
+  document.getElementById('qCard').innerHTML = `
+    <span class="q-tag ${TYPE_CN[q.type]}">${q.type==='多选'?'多选题(可多选)':q.type}</span>
+    <span class="q-num">${isExam?'考试中':('第 '+p+' 题 / 共 '+total+' 题')}</span>
+    <div class="q-stem">${esc(q.stem)}</div>
+    <div class="options">${optsHtml}</div>
+    ${resultHtml}
+    ${q.type==='多选'&&!locked?'<div class="multi-hint">多选：可多选</div>':''}
+    ${btns}
+  `;
+}
+
+function pick(qid, label, el){
+  if(!practice) return;
+  const q = byId(qid);
+  const arr = practice.answers[qid] || (practice.answers[qid]=[]);
+  if(q.type==='多选'){
+    const i = arr.indexOf(label);
+    if(i>=0) arr.splice(i,1); else arr.push(label);
+    el.classList.toggle('selected');
+  } else {
+    if(!arr.length) arr.push(label); else arr[0]=label;
+    document.querySelectorAll('#qCard .opt').forEach(o=>o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+}
+
+function confirmAns(){
+  if(!practice || practice.mode==='exam') return;
+  const q = byId(practice.list[practice.idx]);
+  const ans = practice.answers[q.id] || [];
+  if(!ans.length){ alert('请先选择答案'); return; }
+  const right = isRight(q.id);
+  stats.attempts++; stats.total++;
+  if(right) stats.correct++; else { wrongSet[q.id]=true; store.set('lx_wrong', wrongSet); }
+  stats.done[q.id]=true;
+  store.set('lx_stats', stats);
+  practice.confirmed[q.id]=true;
+  renderQuestion();
+}
+
+function isRight(qid){
+  const q = byId(qid);
+  const ans = (practice.answers[qid]||[]).slice().sort();
+  const correct = q.answer.slice().sort();
+  return ans.length===correct.length && ans.every((v,i)=>v===correct[i]);
+}
+function gotoQ(d){ practice.idx += d; renderQuestion(); }
+function finishPractice(){ alert(`本次完成 ${practice.list.length} 题`); goHome(); }
+
+// ---- 模拟考试 ----
+function startExam(){ show('exam','模拟考试'); renderExam(); }
+function renderExam(){
+  document.getElementById('examInfo').innerHTML = `题库共 ${BANK.length} 题 · 限时 60 分钟 · 满分 100 分`;
+  document.getElementById('examTip').textContent = '随机抽取：单选50题×1分 + 多选10题×2分 + 判断30题×1分 = 满分100分。答题可翻题修改，交卷自动评分，60分及格。';
+}
+function pickN(type,n){ return shuffle(BANK.filter(q=>q.type===type).map(q=>q.id)).slice(0,n); }
+function beginExam(){
+  // 按题型随机抽题：单选50（1分/题）+ 多选10（2分/题）+ 判断30（1分/题），满分100分
+  const pool = pickN('单选',50).concat(pickN('多选',10), pickN('判断',30));
+  exam = { list: pool, idx:0, answers:{}, left:60*60, timer:null };
+  show('practice','模拟考试');
+  document.getElementById('typeFilters').style.display='none';
+  const et = document.getElementById('examTimer');
+  et.style.display='block'; et.textContent='60:00'; et.classList.remove('warn');
+  exam.timer = setInterval(tick, 1000);
+  practice = { list: pool, idx:0, mode:'exam', answers:exam.answers, confirmed:{}, done:false };
+  renderQuestion();
+}
+function tick(){
+  if(!exam) return;
+  exam.left--;
+  const m = String(Math.floor(exam.left/60)).padStart(2,'0');
+  const s = String(exam.left%60).padStart(2,'0');
+  const et = document.getElementById('examTimer');
+  if(et){ et.textContent = m+':'+s; et.classList.toggle('warn', exam.left<=300); }
+  if(exam.left<=0){ submitExam(); }
+}
+function submitExam(){
+  clearInterval(exam.timer); exam.timer=null;
+  document.getElementById('examTimer').style.display='none';
+  const PTS = { '单选':1, '判断':1, '多选':2 };
+  let score=0, full=0;
+  exam.list.forEach(id=>{ const q=byId(id); full+=PTS[q.type]; const ans=(exam.answers[id]||[]).slice().sort(); const cor=q.answer.slice().sort(); if(ans.length===cor.length && ans.every((v,i)=>v===cor[i])) score+=PTS[q.type]; });
+  const total = exam.list.length;
+  const pct = Math.round(score/full*100);
+  exam.list.forEach(id=>{ stats.total++; stats.done[id]=true; });
+  stats.attempts += total;
+  store.set('lx_stats', stats);
+  show('exam','考试结果');
+  document.getElementById('typeFilters').style.display='';
+  document.getElementById('timer').textContent='--:--';
+  document.getElementById('examInfo').innerHTML = `<b>得分：${score} / ${full}</b> · 正确率 ${pct}% · 及格线60分`;
+  document.getElementById('examTip').innerHTML = `建议：正确率≥80%再参加正式考核。<br><br><button class="btn" onclick="reviewExam()">查看错题解析</button><button class="btn secondary" onclick="startExam()">再考一次</button><button class="btn secondary" onclick="goHome()">返回首页</button>`;
+  exam.result = {score,full,total,pct};
+}
+function reviewExam(){
+  const list = exam.list.filter(id=>{ const q=byId(id); const a=(exam.answers[id]||[]).slice().sort(); const c=q.answer.slice().sort(); return !(a.length===c.length&&a.every((v,i)=>v===c[i])); });
+  const target = list.length?list:exam.list;
+  const cf={}; target.forEach(id=>cf[id]=true);
+  practice = { list: target, idx:0, mode:'review', answers:exam.answers, confirmed:cf, done:false };
+  show('practice', list.length?'错题解析':'全部回顾');
+  document.getElementById('typeFilters').style.display='none';
+  document.getElementById('examTimer').style.display='none';
+  renderQuestion();
+}
+
+// ---- 错题本 ----
+function goWrong(){
+  const ids = Object.keys(wrongSet).map(Number).filter(id=>byId(id));
+  const view = document.getElementById('wrong');
+  if(!ids.length){ view.innerHTML = '<div class="empty"><div class="ic">🎉</div>暂无错题，继续保持！</div>'; show('wrong','错题本'); return; }
+  view.innerHTML = `<div class="card-list">${ids.map(id=>{
+    const q=byId(id);
+    return `<div class="litem row" onclick="startWrong('${id}')"><div class="grow"><b>${esc(q.stem).slice(0,40)}${q.stem.length>40?'…':''}</b><p>${q.type} · 正确答案：${q.answer.join('、')}</p></div><div class="num">›</div></div>`;
+  }).join('')}</div>
+  <button class="btn" onclick="clearWrong()">清空错题本</button>`;
+  show('wrong','错题本');
+}
+function startWrong(id){
+  practice = { list:[Number(id)], idx:0, mode:'wrong', answers:{}, confirmed:{}, done:false };
+  show('practice','错题重练');
+  document.getElementById('typeFilters').style.display='none';
+  document.getElementById('examTimer').style.display='none';
+  renderQuestion();
+}
+function clearWrong(){
+  if(!confirm('确认清空所有错题记录？')) return;
+  wrongSet={}; store.set('lx_wrong', wrongSet); goWrong();
+}
+
+// ---- 统计 ----
+function goStats(){
+  const types={'单选':0,'多选':0,'判断':0}; BANK.forEach(q=>types[q.type]++);
+  const done = Object.keys(stats.done).length;
+  const pct = stats.total? Math.round(stats.correct/stats.total*100):0;
+  document.getElementById('stats').innerHTML = `
+    <div class="q-card"><div class="stat-big"><b>${pct}%</b><br><span>总正确率</span></div>
+      <div class="kv"><span>累计答题</span><b>${stats.total}</b></div>
+      <div class="kv"><span>答对</span><b>${stats.correct}</b></div>
+      <div class="kv"><span>答错</span><b>${stats.total-stats.correct}</b></div>
+      <div class="kv"><span>已练题目</span><b>${done} / ${BANK.length}</b></div>
+      <div class="kv"><span>错题本</span><b>${Object.keys(wrongSet).length} 题</b></div>
+    </div>
+    <div class="q-card"><h3 style="color:var(--primary-dark)">题库构成</h3>
+      <div class="kv"><span>单选题</span><b>${types['单选']}</b></div>
+      <div class="kv"><span>多选题</span><b>${types['多选']}</b></div>
+      <div class="kv"><span>判断题</span><b>${types['判断']}</b></div>
+      <div class="kv"><span>合计</span><b>${BANK.length}</b></div>
+    </div>
+    <button class="btn secondary" onclick="resetStats()">重置统计</button>`;
+  show('stats','学习统计');
+}
+function resetStats(){ if(confirm('确认重置所有学习统计？')){ stats={attempts:0,correct:0,total:0,done:{}}; store.set('lx_stats',stats); goStats(); } }
+
+// ---- 考核说明 ----
+function goAbout(){
+  document.getElementById('about').innerHTML = `
+    <div class="about-card"><h3>📖 考核依据</h3>
+      <p>依据山西省应急管理厅《关于印发〈山西省洗（选）煤厂及配煤型煤加工企业主要负责人、安全生产管理人员安全生产知识和管理能力考试知识点〉的通知》（晋应急函〔2021〕186号），考试时间60分钟。</p></div>
+    <div class="about-card"><h3>🎯 考核对象</h3>
+      <ul><li>主要负责人（厂长/经理、投资人/实际控制人、法人代表等）</li><li>安全生产管理人员</li></ul></div>
+    <div class="about-card"><h3>📚 五大知识模块</h3>
+      <ul><li>安全生产理念及法律法规</li><li>安全生产管理（责任制/规章/教育/风险管控/隐患排查）</li><li>安全生产技术管理（洗选工艺/机电/瓦斯煤尘/消防/放射源危化品/职业危害/储装运）</li><li>应急救援管理</li><li>安全生产管理能力（案例分析）</li></ul></div>
+    <div class="about-card"><h3>🧭 刷题说明</h3>
+      <p>题库共 ${BANK.length} 题，含单选、多选、判断。支持随机/顺序刷题、60分钟模拟考试、错题本和进度统计。学习进度与错题保存在本机浏览器。</p></div>
+    <div class="notice">⚠ 题目整理自《山西省选煤厂主要负责人及安全管理人员机考题库》，个别文字可能存在录入差异，答题请以官方考核及法规原文为准。</div>`;
+  show('about','考核说明');
+}
+
+renderHome();
+</script>
+</body>
+</html>
