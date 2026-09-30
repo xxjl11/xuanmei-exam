@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>洗选安全考核刷题</title>
+<title>洗选安管考核题库</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root{
@@ -106,6 +106,11 @@
   .about-card h3{ font-size:15px; color:var(--primary-dark); margin-bottom:8px; }
   .about-card p,.about-card li{ font-size:13px; color:#3a4456; }
   .about-card ul{ padding-left:18px; }
+  .disclaimer{ background:#fff1f0; border:1px solid #ffd6d1; border-radius:10px; padding:9px 12px; font-size:12px; color:#b4453a; margin:-6px 0 14px; line-height:1.6; }
+  .disclaimer b{ color:#c0392b; }
+  .brand-card{ background:var(--card); border-radius:12px; padding:14px 16px; margin-top:14px; display:flex; flex-direction:column; gap:2px; box-shadow:0 1px 4px rgba(0,0,0,.06); cursor:pointer; }
+  .brand-card b{ color:#1a5c9e; font-size:15px; }
+  .brand-card span{ font-size:12px; color:#8898a8; }
   .notice{ background:#fff7ed; border:1px solid #fde6c8; border-radius:10px; padding:10px 12px; font-size:12px; color:#8a5a1d; margin-top:10px; }
 
   .empty{ text-align:center; color:var(--muted); padding:40px 0; }
@@ -117,7 +122,7 @@
 <div class="app">
   <header>
     <div class="back hide" id="backBtn">‹</div>
-    <h1 id="headerTitle">洗选安全考核刷题</h1>
+    <h1 id="headerTitle">洗选安管考核题库</h1>
   </header>
 
   <div class="view active" id="home">
@@ -127,6 +132,7 @@
       <p>安全生产知识和管理能力考试 · 模拟刷题</p>
       <div class="stat-row" id="homeStats"></div>
     </div>
+    <div class="disclaimer">⚠ 本题库为<b>非官方</b>整理题库，仅供学习交流使用，不作为任何官方考核依据；答题请以官方考核及法规原文为准。</div>
     <div class="menu">
       <div class="menu-item" onclick="startPractice('random')"><div class="ic">🎲</div><b>随机刷题</b><span>打乱顺序练习</span></div>
       <div class="menu-item" onclick="startPractice('order')"><div class="ic">📋</div><b>顺序刷题</b><span>按题库顺序练习</span></div>
@@ -135,6 +141,9 @@
       <div class="menu-item wide" onclick="goStats()"><div class="ic">📊</div><b>学习统计</b><span>练习量与正确率</span></div>
     </div>
     <div class="about-link"><span onclick="goAbout()">考核说明 · 依据晋应急函〔2021〕186号</span></div>
+    <div class="brand-card" onclick="goAbout()">
+      <b>微信公众号：洗选交流</b><span>选煤技术 · 标准 · 考试备考资料，扫码关注</span>
+    </div>
     <footer>洗选交流 · 选煤/洗选专业学习工具</footer>
   </div>
 
@@ -186,7 +195,7 @@ function show(viewId, title, back=true){
   document.getElementById('backBtn').classList.toggle('hide', !back);
   window.scrollTo(0,0);
 }
-function goHome(){ renderHome(); show('home','洗选安全考核刷题',false); }
+function goHome(){ renderHome(); show('home','洗选安管考核题库',false); }
 document.getElementById('backBtn').onclick = goHome;
 
 function renderHome(){
@@ -418,7 +427,12 @@ function goAbout(){
       <ul><li>安全生产理念及法律法规</li><li>安全生产管理（责任制/规章/教育/风险管控/隐患排查）</li><li>安全生产技术管理（洗选工艺/机电/瓦斯煤尘/消防/放射源危化品/职业危害/储装运）</li><li>应急救援管理</li><li>安全生产管理能力（案例分析）</li></ul></div>
     <div class="about-card"><h3>🧭 刷题说明</h3>
       <p>题库共 ${BANK.length} 题，含单选、多选、判断。支持随机/顺序刷题、60分钟模拟考试、错题本和进度统计。学习进度与错题保存在本机浏览器。</p></div>
-    <div class="notice">⚠ 题目整理自《山西省选煤厂主要负责人及安全管理人员机考题库》，个别文字可能存在录入差异，答题请以官方考核及法规原文为准。</div>`;
+    <div class="notice">⚠ 本题库为非官方提供，仅供学习交流使用，不作为任何官方考核依据；题目整理自公开资料及《山西省选煤厂主要负责人及安全管理人员机考题库》，个别文字可能存在录入差异，答题请以官方考核及法规原文为准。</div>
+    <div class="about-card" style="text-align:center;">
+      <img src="weixin-qr.jpg" alt="微信公众号：洗选交流" style="width:180px;height:180px;border-radius:12px;" onerror="this.parentElement.style.display='none'">
+      <h3 style="margin:8px 0 2px;">微信公众号：洗选交流</h3>
+      <p style="margin:0;color:#8898a8;font-size:13px;">微信扫码关注，获取选煤技术、标准与备考资料</p>
+    </div>`;
   show('about','考核说明');
 }
 
